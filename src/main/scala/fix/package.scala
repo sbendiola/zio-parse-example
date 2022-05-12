@@ -26,8 +26,8 @@ lazy val eq = char('=')
 lazy val value = notSep
         .transform[Value](value => Value(value), value => value.text)
 
-lazy val field = (tag ~ eq ~ value ~ (sep | Syntax.end))
-    .repeat
+lazy val field = (tag ~ eq ~ value)
+    .repeatWithSep(sep)
     .transform[Chunk[Field]](
         to => to.map((tag, value) => Field(tag, value)), 
         fields => fields.map(field => (field.tag, field.value)))
