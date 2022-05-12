@@ -39,3 +39,6 @@ bin/
 
 #general
 *.class
+
+.bloop
+.bsp
