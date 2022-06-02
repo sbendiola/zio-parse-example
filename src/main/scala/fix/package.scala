@@ -7,7 +7,9 @@ import Syntax.{char, charIn, charNotIn, digit}
 val seperator: Char = 0x01
 
 opaque type Value =  String
+
 opaque type Tag = Int
+
 case class Field(tag: Tag, value: Value)
 
 object Tag:
