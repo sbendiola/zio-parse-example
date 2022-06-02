@@ -7,13 +7,10 @@ lazy val root = project
   .settings(
     name := "poseidonz",
     version := "0.1.0-SNAPSHOT",
-
     scalaVersion := scala3Version,
-
+    testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
     libraryDependencies ++= Seq(
       "dev.zio"               %% "zio"          % zioVersion,
       "dev.zio" %% "zio-parser" % "0.1.6",
       "dev.zio" %% "zio-test" % zioVersion % "test",
-      "dev.zio" %% "zio-test-junit"   % zioVersion % "test"
-)
-  )
+      "dev.zio" %% "zio-test-sbt"   % zioVersion % "test"))

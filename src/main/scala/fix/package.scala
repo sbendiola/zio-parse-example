@@ -6,30 +6,42 @@ import Syntax.{char, charIn, charNotIn, digit}
 
 val seperator: Char = 0x01
 
-enum FixValue:
-    case Sep
-    case Value(text: String)
-    case Tag(value: Int)
-    case Field(tag: Tag, value: Value)
+opaque type Value =  String
+opaque type Tag = Int
+case class Field(tag: Tag, value: Value)
 
-import FixValue.*
+object Tag:
+  def apply(i: Int): Tag = i
+  
+object Value:
+  def apply(value: String): Value = value
+
+extension (value: Value)
+  def text: String = value
+
+extension (tag: Tag)
+  def value: Int = tag   
+
+object Fix: 
+  export Tag.*
+  export Value.*
 
 lazy val sep = char(seperator)
 
 lazy val notSep = charNotIn(seperator).*.string
 
 lazy val tag = digit.repeat.string
-        .transform[Tag](text => Tag(text.toInt), value => value.value.toString)
+        .transform[Tag](text => Tag(text.toInt), tag => tag.value.toString)
 
-lazy val eq = char('=')
+lazy val eq = char('=') 
 
 lazy val value = notSep
         .transform[Value](value => Value(value), value => value.text)
 
-lazy val field = (tag ~ eq ~ value)
+lazy val field: Syntax[String, Char, Char, Chunk[Field]] = (tag ~ eq ~ value)
     .repeatWithSep(sep)
     .transform[Chunk[Field]](
         to => to.map((tag, value) => Field(tag, value)), 
         fields => fields.map(field => (field.tag, field.value)))
 
-lazy val message = field.repeat
+lazy val message: Syntax[String, Char, Char, Chunk[Chunk[Field]]] = field.repeat

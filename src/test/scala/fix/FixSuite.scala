@@ -1,16 +1,20 @@
 package fix
 
 import zio.test.Assertion.{equalTo, isRight}
+import zio.test.{ ZIOSpecDefault, assert, suite }
 import zio.test.*
-import zio.test.junit.JUnitRunnableSpec
 import zio.Chunk
-import fix.FixValue
-import FixValue.*
+import fix.Fix.*
 
-object FixSuite extends JUnitRunnableSpec:
+object FixSuite extends ZIOSpecDefault:
+
+  def FixString(fields: String*): String = 
+    fields.map(_.trim)
+      .mkString(String.valueOf(seperator))
+
   def spec = suite("fix parsing")(
     test("simpleFix") {
-      val message = List("8=FIX.5.0", "35=8", "58=Blah blah = #!@$%", "212=<xml>12=3</xml>").mkString(String.valueOf(seperator))
+      val message = FixString("8=FIX.5.0", "35=8", "58=Blah blah = #!@$%", "212=<xml>12=3</xml>")
       assert(fix.message.parseString(message))(isRight(equalTo(
         Chunk(Chunk(
           Field(Tag(8), Value("FIX.5.0")),
@@ -19,7 +23,8 @@ object FixSuite extends JUnitRunnableSpec:
           Field(Tag(212), Value("<xml>12=3</xml>")),
           )))))
       },
+      
     test("index of seperator") {
-        val message = List("8=FIX.5.0", "35=8", "58=Blah blah = #!@$%").mkString(String.valueOf(seperator))
+        val message = FixString("8=FIX.5.0", "35=8", "58=Blah blah = #!@$%")
         assert(message.indexOf(seperator))(Assertion.not(equalTo(-1)))
     })
